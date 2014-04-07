@@ -72,7 +72,7 @@ public class JoinActivity extends WifiActivity {
         @Override
         public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
             Log.d(TAG, "groupOwnerAddress" + wifiP2pInfo.groupOwnerAddress);
-            ((TextView)findViewById(R.id.host)).append(wifiP2pInfo.groupOwnerAddress.toString());
+            ((TextView)findViewById(R.id.address)).append(wifiP2pInfo.groupOwnerAddress.toString());
         }
     };
 
@@ -84,6 +84,27 @@ public class JoinActivity extends WifiActivity {
 
             for (final WifiP2pDevice device : peerList.getDeviceList()) {
                 Log.d(TAG, "device available " + device.deviceName);
+                if (availableDevices.add(device.deviceAddress)) {
+                    Log.d(TAG, "connecting to " + device.deviceAddress);
+                    WifiP2pConfig config = new WifiP2pConfig();
+                    config.deviceAddress = device.deviceAddress;
+                    config.wps.setup = WpsInfo.PBC;
+                    config.groupOwnerIntent = 15;
+
+                    mManager.connect(mChannel, config, new WifiP2pManager.ActionListener() {
+                        @Override
+                        public void onSuccess() {
+                            // WiFiDirectBroadcastReceiver will notify us. Ignore for now.
+                        }
+
+                        @Override
+                        public void onFailure(int reason) {
+                            Log.d(TAG, "connection failed to device.deviceName");
+                            Toast.makeText(JoinActivity.this, "Connect failed to " + device.deviceName, Toast.LENGTH_LONG).show();
+                            availableDevices.remove(device.deviceAddress);
+                        }
+                    });
+                }
             }
         }
     };

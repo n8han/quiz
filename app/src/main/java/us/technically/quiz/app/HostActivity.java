@@ -63,7 +63,7 @@ public class HostActivity extends WifiActivity {
         public void onPeersAvailable(WifiP2pDeviceList peerList) {
             for (final WifiP2pDevice device : peerList.getDeviceList()) {
                 Log.d(TAG, "device available " + device.deviceName);
-                if (true || availableDevices.add(device.deviceAddress)) {
+                if (availableDevices.add(device.deviceAddress)) {
                     Log.d(TAG, "connecting to " + device.deviceAddress);
                     WifiP2pConfig config = new WifiP2pConfig();
                     config.deviceAddress = device.deviceAddress;
