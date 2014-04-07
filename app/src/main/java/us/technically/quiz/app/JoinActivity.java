@@ -12,6 +12,7 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -19,6 +20,9 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,6 +30,7 @@ import java.util.Set;
 public class JoinActivity extends WifiActivity {
     private static final String TAG = "JoinActivity";
 
+    private static final int SOCKET_TIMEOUT = 5000;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,9 +75,30 @@ public class JoinActivity extends WifiActivity {
 
     private WifiP2pManager.ConnectionInfoListener joinInfoListener = new WifiP2pManager.ConnectionInfoListener() {
         @Override
-        public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
-            Log.d(TAG, "groupOwnerAddress" + wifiP2pInfo.groupOwnerAddress);
-            ((TextView)findViewById(R.id.address)).append(wifiP2pInfo.groupOwnerAddress.toString());
+        public void onConnectionInfoAvailable(final WifiP2pInfo wifiP2pInfo) {
+            Log.d(TAG, "groupOwnerAddress " + wifiP2pInfo.groupOwnerAddress);
+            ((TextView) findViewById(R.id.address)).append(wifiP2pInfo.groupOwnerAddress.toString());
+
+            new AsyncTask<Void,Void,String>() {
+                @Override
+                protected String doInBackground(Void... voids) {
+                    Socket socket = new Socket();
+                    int port = HostServer.PORT;
+
+                    try {
+                        Log.d(TAG, "Opening client socket - ");
+                        socket.bind(null);
+                        socket.connect((new InetSocketAddress("192.168.49.1"/*wifiP2pInfo.groupOwnerAddress*/, port)), SOCKET_TIMEOUT);
+                        Log.d(TAG, "Opened socket");
+                        socket.getOutputStream().write("hello\n".getBytes("utf-8"));
+                        socket.getOutputStream().close();
+                        socket.close();
+                    } catch (IOException e) {
+                        Log.e(TAG, e.getMessage());
+                    }
+                    return "";
+                }
+            }.execute();
         }
     };
 
