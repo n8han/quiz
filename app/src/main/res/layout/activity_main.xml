@@ -19,4 +19,15 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Join Game"
+        android:id="@+id/join"
+        android:layout_above="@+id/host"
+        android:layout_alignRight="@+id/host"
+        android:layout_alignEnd="@+id/host"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
 </RelativeLayout>
